@@ -1,13 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- Global variable -->
     <string name="app_name">Yamba</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_status">StatusActivity</string>
 
-
+    <!-- fragment_status.xml -->
     <string name="button_tweet">Tweet</string>
     <string name="hint_status">What\'s going on?</string>
+
+    <!-- settings.xml -->
+    <string name="username">username</string>
+    <string name="username_summary">Summary</string>
+    <string name="password">password</string>
+    <string name="password_summary">password summary</string>
+    <string name="title_activity_main">MainActivity</string>
+
+    <!-- /res/menu/main.xml -->
+    <string name="tweet">Tweet</string>
+    <string name="refresh">Refresh</string>
+    <string name="purge">Delete</string>
+
+    <!-- /res/menu/menu.xml -->
+    <string name="titlePrefs">TitlePrefs</string>
+    <string name="titleRefresh">TitleService</string>
 
 </resources>

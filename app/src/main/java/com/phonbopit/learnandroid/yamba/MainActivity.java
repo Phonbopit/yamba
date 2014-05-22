@@ -7,27 +7,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 
-public class StatusActivity extends ActionBarActivity {
-
-    public static final String TAG = StatusActivity.class.getSimpleName();
+public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Check if this activity was created before?
-        if (savedInstanceState == null) {
-            StatusFragment fragment = new StatusFragment();
-            getSupportFragmentManager().beginTransaction()
-                    .add(android.R.id.content, fragment, "StatusFragment")
-                    .commit();
-        }
+        setContentView(R.layout.activity_main);
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu, menu);
+        getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
@@ -37,18 +29,25 @@ public class StatusActivity extends ActionBarActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+
         switch (id) {
-            case R.id.itemPrefs:
-                startActivity(new Intent(this, SettingActivity.class));
-                break;
-            case R.id.itemServiceStart:
-                startService(new Intent(this, RefreshService.class));
-                break;
+            case R.id.action_tweet:
+                Intent intentTweet = new Intent("com.phonbopit.learnandroid.yamba.action.tweet");
+                startActivity(intentTweet);
+                return true;
+            case R.id.action_purge:
+
+                return true;
+            case R.id.action_settings:
+                Intent intentSettings = new Intent(this, SettingActivity.class);
+                startActivity(intentSettings);
+                return true;
+            case R.id.action_refresh:
+
+                return true;
             default:
                 return false;
         }
-        return super.onOptionsItemSelected(item);
+
     }
-
-
 }
