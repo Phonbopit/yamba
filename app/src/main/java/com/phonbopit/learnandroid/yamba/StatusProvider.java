@@ -4,14 +4,15 @@ import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 
 
 public class StatusProvider extends ContentProvider {
-
-    public static final String TAG = StatusProvider.class.getSimpleName();
 
     private static final String TAG = StatusProvider.class.getSimpleName();
     private DbHelper dbHelper;
@@ -67,5 +68,85 @@ public class StatusProvider extends ContentProvider {
         }
 
         return ret;
+    }
+
+    @Override
+    public int update(Uri uri, ContentValues values,
+                      String selection, String[] selectionArgs) {
+        String where;
+
+        switch (sURIMatcher.match(uri)) {
+            case StatusContract.STATUS_DIR:
+                where = selection;
+                break;
+            case StatusContract.STATUS_ITEM:
+                long id = ContentUris.parseId(uri);
+                where = StatusContract.Column.ID + "=" + id +
+                        (TextUtils.isEmpty(selection) ? "" : " and ( " +
+                                selection + " )");
+                break;
+            default:
+                throw new IllegalArgumentException(("Illegal uri: " + uri));
+        }
+
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        int ret = db.update(StatusContract.TABLE, values, where, selectionArgs);
+        if (ret > 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return ret;
+    }
+
+    @Override
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
+        String where;
+
+        switch (sURIMatcher.match(uri)) {
+            case StatusContract.STATUS_DIR:
+                where = (selection == null) ? "1" : selection;
+                break;
+            case StatusContract.STATUS_ITEM:
+                long id = ContentUris.parseId(uri);
+                where = StatusContract.Column.ID + "=" + id +
+                        (TextUtils.isEmpty(selection) ? "" : " and ( "
+                                + selection + " )");
+                break;
+            default:
+                throw new IllegalArgumentException("Illegal uri: " + uri);
+        }
+
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        int ret = db.delete(StatusContract.TABLE, where, selectionArgs);
+        if (ret > 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return ret;
+    }
+
+    @Override
+    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+        qb.setTables(StatusContract.TABLE);
+        switch (sURIMatcher.match(uri)) {
+            case StatusContract.STATUS_DIR:
+                break;
+            case StatusContract.STATUS_ITEM:
+                qb.appendWhere(StatusContract.Column.ID + "="
+                        + uri.getLastPathSegment());
+                break;
+            default:
+                throw new IllegalArgumentException("Illegal uri: " + uri);
+        }
+
+        String orderBy = (TextUtils.isEmpty(sortOrder))
+                ? StatusContract.DEFAULT_SORT
+                : sortOrder;
+
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = qb.query(db, projection, selection, selectionArgs,
+                null, null, orderBy);
+
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+        return cursor;
     }
 }

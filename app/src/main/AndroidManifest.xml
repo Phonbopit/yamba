@@ -36,6 +36,11 @@
             </intent-filter>
         </activity>
 
+        <provider
+            android:authorities="com.phonbopit.learnandroid.yamba.StatusProvider"
+            android:name=".StatusProvider"
+            android:exported="false"/>
+
         <!-- Register Service -->
         <service android:name=".RefreshService" />
     </application>

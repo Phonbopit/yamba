@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -48,6 +49,7 @@ public class RefreshService extends IntentService {
         YambaClient client = new YambaClient(username, password);
 
         try {
+            int count = 0;
             List<YambaClient.Status> timeline = client.getTimeline(20);
             for (YambaClient.Status status : timeline) {
                 values.clear();
@@ -56,8 +58,17 @@ public class RefreshService extends IntentService {
                 values.put(StatusContract.Column.MESSAGE, status.getMessage());
                 values.put(StatusContract.Column.CREATED_AT, status.getCreatedAt().getTime());
 
-                db.insertWithOnConflict(StatusContract.TABLE, null, values,
-                        SQLiteDatabase.CONFLICT_IGNORE);
+                Uri uri = getContentResolver().insert(
+                        StatusContract.CONTENT_URI, values);
+
+                if (uri != null) {
+                    count++;
+                    String s = String.format("%s: %s", status.getUser(), status.getMessage());
+                    Log.i(TAG, s);
+                }
+
+/*                db.insertWithOnConflict(StatusContract.TABLE, null, values,
+                        SQLiteDatabase.CONFLICT_IGNORE);*/
             }
         } catch (YambaClientException e) {
             Log.e(TAG, e.toString());
